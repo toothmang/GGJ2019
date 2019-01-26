@@ -8,7 +8,7 @@ using System.Collections;
 
 public class BuildDialogue : EditorWindow 
 {
-    public static string sceneFile = "Assets/WebVR/Scenes/WebVR.Unity";
+    public static string sceneFile = "Assets/Scenes/Default.Unity";
     public static string buildPath = "Build";
     public static BuildTarget buildTarget = BuildTarget.WebGL;
     public static bool devBuild = true;
