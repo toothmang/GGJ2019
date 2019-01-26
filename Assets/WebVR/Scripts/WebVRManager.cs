@@ -16,13 +16,13 @@ public class WebVRManager : MonoBehaviour
     public bool dontDestroyOnLoad = true;
     [Header("Tracking")]
     [Tooltip("Default height of camera if no room-scale transform is present.")]
-    public float DefaultHeight = 1.2f;
+    public float DefaultHeight = 0.0f;
     [Tooltip("Represents the size of physical space available for XR.")]
     public TrackingSpaceType TrackingSpace = TrackingSpaceType.RoomScale;
 
     private static string GlobalName = "WebVRCameraSet";
     private static WebVRManager instance;
-    [HideInInspector]
+
     public WebVRState vrState = WebVRState.NORMAL;
 
     public delegate void VRCapabilitiesUpdate(WebVRDisplayCapabilities capabilities);
@@ -30,7 +30,13 @@ public class WebVRManager : MonoBehaviour
 
     public delegate void VRChange(WebVRState state);
     public event VRChange OnVRChange;
-    
+
+    public Quaternion headRotation;
+    public Vector3 headPosition;
+    public Matrix4x4 sitStand;
+
+    public VRCameraAttachment cameraAttachment;
+
     public delegate void HeadsetUpdate(
         Matrix4x4 leftProjectionMatrix,
         Matrix4x4 leftViewMatrix,
@@ -38,9 +44,9 @@ public class WebVRManager : MonoBehaviour
         Matrix4x4 rightViewMatrix,
         Matrix4x4 sitStandMatrix);
     public event HeadsetUpdate OnHeadsetUpdate;
-   
+
     public delegate void ControllerUpdate(string id,
-        int index, 
+        int index,
         string hand,
         bool hasOrientation,
         bool hasPosition,
@@ -50,6 +56,7 @@ public class WebVRManager : MonoBehaviour
         Vector3 linearVelocity,
         WebVRControllerButton[] buttons,
         float[] axes);
+
     public event ControllerUpdate OnControllerUpdate;
 
     // link WebGL plugin for interacting with browser scripts.
@@ -68,7 +75,8 @@ public class WebVRManager : MonoBehaviour
 
     private WebVRDisplayCapabilities capabilities;
 
-    public static WebVRManager Instance {
+    public static WebVRManager Instance
+    {
         get
         {
             if (instance == null)
@@ -95,12 +103,13 @@ public class WebVRManager : MonoBehaviour
     {
         Debug.Log("Active Graphics Tier: " + Graphics.activeTier);
         instance = this;
-        
-        if(!GlobalName.Equals(instance.name)) {
-           Debug.LogError("The webvr.js script requires the WebVRManager gameobject to be named " 
-           + GlobalName + " for proper functioning");
+
+        if (!GlobalName.Equals(instance.name))
+        {
+            Debug.LogError("The webvr.js script requires the WebVRManager gameobject to be named "
+            + GlobalName + " for proper functioning");
         }
-                
+
         if (instance.dontDestroyOnLoad)
         {
             DontDestroyOnLoad(instance);
@@ -117,9 +126,9 @@ public class WebVRManager : MonoBehaviour
     }
 
     // Handles WebVR data from browser
-    public void OnWebVRData (string jsonString)
+    public void OnWebVRData(string jsonString)
     {
-        WebVRData webVRData = WebVRData.CreateFromJSON (jsonString);
+        WebVRData webVRData = WebVRData.CreateFromJSON(jsonString);
 
         // Update controllers
         if (webVRData.controllers.Length > 0)
@@ -132,28 +141,31 @@ public class WebVRManager : MonoBehaviour
                         controllerData.hand,
                         controllerData.hasOrientation,
                         controllerData.hasPosition,
-                        new Quaternion (controllerData.orientation [0], controllerData.orientation [1], controllerData.orientation [2], controllerData.orientation [3]),
-                        new Vector3 (controllerData.position [0], controllerData.position [1], controllerData.position [2]),
-                        new Vector3 (controllerData.linearAcceleration [0], controllerData.linearAcceleration [1], controllerData.linearAcceleration [2]),
-                        new Vector3 (controllerData.linearVelocity [0], controllerData.linearVelocity [1], controllerData.linearVelocity [2]),
+                        new Quaternion(controllerData.orientation[0], controllerData.orientation[1], controllerData.orientation[2], controllerData.orientation[3]),
+                        new Vector3(controllerData.position[0], controllerData.position[1], controllerData.position[2]),
+                        new Vector3(controllerData.linearAcceleration[0], controllerData.linearAcceleration[1], controllerData.linearAcceleration[2]),
+                        new Vector3(controllerData.linearVelocity[0], controllerData.linearVelocity[1], controllerData.linearVelocity[2]),
                         controllerData.buttons,
                         controllerData.axes);
             }
         }
+
     }
 
     // Handles WebVR capabilities from browser
-    public void OnVRCapabilities(string json) {
+    public void OnVRCapabilities(string json)
+    {
         WebVRDisplayCapabilities capabilities = JsonUtility.FromJson<WebVRDisplayCapabilities>(json);
         OnVRCapabilities(capabilities);
     }
 
-    public void OnVRCapabilities(WebVRDisplayCapabilities capabilities) {
-        #if !UNITY_EDITOR && UNITY_WEBGL
+    public void OnVRCapabilities(WebVRDisplayCapabilities capabilities)
+    {
+#if !UNITY_EDITOR && UNITY_WEBGL
         this.capabilities = capabilities;
         if (!capabilities.canPresent)
             WebVRUI.displayElementId("novr");
-        #endif
+#endif
 
         if (OnVRCapabilitiesUpdate != null)
             OnVRCapabilitiesUpdate(capabilities);
@@ -161,12 +173,12 @@ public class WebVRManager : MonoBehaviour
 
     public void toggleVrState()
     {
-        #if !UNITY_EDITOR && UNITY_WEBGL
+#if !UNITY_EDITOR && UNITY_WEBGL
         if (this.vrState == WebVRState.ENABLED)
             setVrState(WebVRState.NORMAL);
         else
             setVrState(WebVRState.ENABLED);
-        #endif
+#endif
     }
 
     public void setVrState(WebVRState state)
@@ -179,7 +191,7 @@ public class WebVRManager : MonoBehaviour
     // received start VR from WebVR browser
     public void OnStartVR()
     {
-        Instance.setVrState(WebVRState.ENABLED);        
+        Instance.setVrState(WebVRState.ENABLED);
     }
 
     // receive end VR from WebVR browser
@@ -191,7 +203,8 @@ public class WebVRManager : MonoBehaviour
     float[] GetFromSharedArray(int index)
     {
         float[] newArray = new float[16];
-        for (int i = 0; i < newArray.Length; i++) {
+        for (int i = 0; i < newArray.Length; i++)
+        {
             newArray[i] = sharedArray[index * 16 + i];
         }
         return newArray;
@@ -199,26 +212,27 @@ public class WebVRManager : MonoBehaviour
 
     void Start()
     {
-        #if !UNITY_EDITOR && UNITY_WEBGL
+#if !UNITY_EDITOR && UNITY_WEBGL
         ConfigureToggleVRKeyName(toggleVRKeyName);
         InitSharedArray(sharedArray, sharedArray.Length);
         ListenWebVRData();
-        #endif
+#endif
         SetTrackingSpaceType();
     }
 
     void Update()
     {
-        #if UNITY_EDITOR || !UNITY_WEBGL
+#if UNITY_EDITOR || !UNITY_WEBGL
         bool quickToggleEnabled = toggleVRKeyName != null && toggleVRKeyName != "";
         if (quickToggleEnabled && Input.GetKeyUp(toggleVRKeyName))
             toggleVrState();
-        #endif
+#endif
     }
 
     void LateUpdate()
     {
-        if (OnHeadsetUpdate != null && this.vrState == WebVRState.ENABLED) {
+        if (OnHeadsetUpdate != null && this.vrState == WebVRState.ENABLED)
+        {
             Matrix4x4 leftProjectionMatrix = WebVRMatrixUtil.NumbersToMatrix(GetFromSharedArray(0));
             Matrix4x4 rightProjectionMatrix = WebVRMatrixUtil.NumbersToMatrix(GetFromSharedArray(1));
             Matrix4x4 leftViewMatrix = WebVRMatrixUtil.NumbersToMatrix(GetFromSharedArray(2));
@@ -229,12 +243,23 @@ public class WebVRManager : MonoBehaviour
                 sitStandMatrix = Matrix4x4.Translate(new Vector3(0, this.DefaultHeight, 0));
             }
 
+            Matrix4x4 trs = WebVRMatrixUtil.TransformViewMatrixToTRS(leftViewMatrix);
+            headRotation = WebVRMatrixUtil.GetRotationFromMatrix(trs);
+            headPosition = WebVRMatrixUtil.GetTranslationFromMatrix(trs);
+            sitStand = sitStandMatrix;
+
+            if (cameraAttachment)
+            {
+                cameraAttachment.VRCamera.localRotation = headRotation;
+                cameraAttachment.VRCamera.localPosition = headPosition;
+            }
+
             OnHeadsetUpdate(
                 leftProjectionMatrix,
                 rightProjectionMatrix,
                 leftViewMatrix,
                 rightViewMatrix,
                 sitStandMatrix);
-         }
+        }
     }
 }

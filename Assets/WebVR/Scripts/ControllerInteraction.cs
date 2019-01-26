@@ -6,11 +6,20 @@ using System.Runtime.InteropServices;
 
 public class ControllerInteraction : MonoBehaviour
 {
+    public WebVRController controller;
     private FixedJoint attachJoint = null;
     private Rigidbody currentRigidBody = null;
     private List<Rigidbody> contactRigidBodies = new List<Rigidbody> ();
 
     private Animator anim;
+
+    bool isGrabbing = false;
+
+    AverageOverFrames currentVelocity = new AverageOverFrames(10);
+    AverageOverFrames currentAngularVelocity = new AverageOverFrames(10);
+    Vector3 lastTractorPos;
+    Quaternion lastTractorRot;
+
 
     void Awake()
     {
@@ -20,19 +29,56 @@ public class ControllerInteraction : MonoBehaviour
     void Start()
     {
         anim = gameObject.GetComponent<Animator>();
+        controller = gameObject.GetComponent<WebVRController>();
     }
 
     void Update()
     {
-        WebVRController controller = gameObject.GetComponent<WebVRController>();
+        float normalizedTime = controller.GetAxis("Grip");
 
-        float normalizedTime = controller.GetButton("Trigger") ? 1 : controller.GetAxis("Grip");
+        bool lastGrabbing = isGrabbing;
 
-        if (controller.GetButtonDown("Trigger") || controller.GetButtonDown("Grip"))
-            Pickup();
+        isGrabbing = normalizedTime > 0.2f;
+        //if (controller.GetButtonDown("Trigger") || controller.GetButtonDown("Grip"))
+        //{
+        //    isGrabbing = true;
+        //}
 
-        if (controller.GetButtonUp("Trigger") || controller.GetButtonUp("Grip"))
+        //if (controller.GetButtonUp("Trigger") || controller.GetButtonUp("Grip"))
+        //{
+        //    isGrabbing = false;
+        //}
+
+        // Handle state changes for buttons
+        if (isGrabbing)
+        {
+            if (!currentRigidBody)
+            {
+                Pickup();
+            }
+            else
+            {
+                Vector3 currentTractorPos = currentRigidBody.position;
+                Quaternion currentTractorRot = currentRigidBody.rotation;
+                Vector3 tv = (currentTractorPos - lastTractorPos) / Time.deltaTime;
+                lastTractorPos = currentTractorPos;
+
+
+                currentVelocity.Update(tv);
+
+                // Update angular velocity
+                Quaternion av = currentTractorRot * Quaternion.Inverse(lastTractorRot);
+                Vector3 ave = av.eulerAngles;
+                Vector3 avd = new Vector3(Mathf.DeltaAngle(0f, ave.x), Mathf.DeltaAngle(0f, ave.y), Mathf.DeltaAngle(0f, ave.z));
+                lastTractorRot = currentTractorRot;
+                currentAngularVelocity.Update(avd / Time.deltaTime);
+            }
+            
+        }
+        else if (lastGrabbing)
+        {
             Drop();
+        }
 
         // Use the controller button or axis position to manipulate the playback time for hand model.
         anim.Play("Take", -1, normalizedTime);
@@ -62,13 +108,23 @@ public class ControllerInteraction : MonoBehaviour
 
         currentRigidBody.MovePosition(transform.position);
         attachJoint.connectedBody = currentRigidBody;
+        //attachJoint.anchor = currentRigidBody.gameObject.transform.InverseTransformPoint(debrisHit.point);
     }
 
     public void Drop() {
         if (!currentRigidBody)
             return;
 
+        var cb = attachJoint.connectedBody;
         attachJoint.connectedBody = null;
+        if (cb)
+        {
+            cb.velocity = currentVelocity.value;
+            cb.angularVelocity = currentAngularVelocity.value * Mathf.Deg2Rad;
+        }
+
+        currentVelocity.Clear();
+        currentAngularVelocity.Clear();
         currentRigidBody = null;
     }
 
