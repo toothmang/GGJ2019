@@ -25,6 +25,12 @@ public class WebVRControllerButton
 
 public class WebVRController : MonoBehaviour
 {
+    public static WebVRController Left, Right;
+    public static WebVRController Other(WebVRController c)
+    {
+        return c.hand == WebVRControllerHand.LEFT ? Right : Left;
+    }
+
     [Tooltip("Controller hand to use.")]
     public WebVRControllerHand hand = WebVRControllerHand.NONE;
     [Tooltip("Controller input settings.")]
@@ -53,6 +59,18 @@ public class WebVRController : MonoBehaviour
     }
 
     public Vector3 lastPosition = Vector3.zero;
+
+    private void Start()
+    {
+        if (hand == WebVRControllerHand.LEFT)
+        {
+            Left = this;
+        }
+        else
+        {
+            Right = this;
+        }
+    }
 
     // Updates button states from Web gamepad API.
     private void UpdateButtons(WebVRControllerButton[] buttons)

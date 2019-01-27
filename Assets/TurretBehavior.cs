@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class TurretBehavior : MonoBehaviour {
 
+    public static List<TurretBehavior> Instances = new List<TurretBehavior>();
+
     public enum FireMode {constant, random, burst};
     public enum FireArc {high, low};
     public enum MovementMode {wander, patrol, stationary};
@@ -30,11 +32,14 @@ public class TurretBehavior : MonoBehaviour {
     void Start () {
         refireWait = refireDelay;
         burstCount = 3;
+
         origin = transform.position;
 
         float angle = Random.value;
         float distance = (Random.value * 0.5f + 0.5f) * stepLength;
         waypoint = new Vector3(Mathf.Cos(angle)*distance, origin.y, Mathf.Sin(angle)*distance);
+
+        Instances.Add(this);
     }
 
     // Update is called once per frame
@@ -46,7 +51,7 @@ public class TurretBehavior : MonoBehaviour {
     void FixedUpdate () {
         Vector3 vel = GetComponent<Rigidbody>().velocity;
 
-        if (movementMode != MovementMode.stationary && !slowDown) {
+        if (movementMode != MovementMode.stationary) {
             vel *= 0.9f;
 
             Vector3 direction = waypoint - transform.position;
@@ -114,7 +119,10 @@ public class TurretBehavior : MonoBehaviour {
             //Rigidbody rb = (Rigidbody) clone;
             //rb.velocity = new Vector3(projectileSpeed, 0.f, 0.f);
             //clone.GetComponent<Rigidbody>().velocity = atk_arc * new Vector3(projectileSpeed, 0f, 0f);
-            clone.GetComponent<Rigidbody>().velocity = atk_arc * new Vector3(0f, 0f, -projectileSpeed);
+            var p = clone.AddComponent<Projectile>();
+            p.rigBod = clone.GetComponent<Rigidbody>();
+            p.rigBod.velocity = atk_arc * new Vector3(0f, 0f, -projectileSpeed);
+
             //clone.GetComponent<Rigidbody>().velocity = atk_arc * (target.transform.position - transform.position);
             //clone.GetComponent<Rigidbody>().velocity = clone.transform.TransformVector(new Vector3(0f, 0f, projectileSpeed));
             //clone.GetComponent<Rigidbody>().velocity = clone.transform.TransformVector(new Vector3(projectileSpeed, 0f, 0f));
