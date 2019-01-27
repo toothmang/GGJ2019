@@ -4,17 +4,24 @@ using UnityEngine;
 
 public class TurretBehavior : MonoBehaviour {
 
+    public enum FireMode {constant, random, burst};
+    public enum FireArc {high, low};
+
     public float projectileScale; 
     public float projectileSpeed;
     public Object projectile;
     public GameObject target;
     public float refireDelay;
-    
+    public FireMode fireMode;
+    public FireArc fireArc;
+
     private float refireWait;
+    private int burstCount;
 
     // Use this for initialization
     void Start () {
         refireWait = refireDelay;
+        burstCount = 3;
     }
     
     // Update is called once per frame
@@ -25,31 +32,54 @@ public class TurretBehavior : MonoBehaviour {
     // FixedUpdate is called once per physics update (50Hz default)
     void FixedUpdate () {
         refireWait -= Time.deltaTime;
+
+        bool ready = false;
         
-        if (refireWait <= 0) {
-            refireWait += refireDelay;
-            
-            bool safe;
-            Quaternion atk_arc = ballistic(out safe, target.transform.position - transform.position, projectileSpeed);
-            if (safe) {
-            
-                //Debug.Log(target.transform.position - transform.position);
-                Debug.Log("ATK_ARC"); Debug.Log(atk_arc);
-                //Debug.Log(atk_arc * (target.transform.position - transform.position));
-            
-                GameObject clone = (GameObject) Instantiate(projectile, transform.position, atk_arc);
-                clone.transform.localScale = new Vector3(projectileScale, projectileScale, projectileScale);
-                
-                //Rigidbody rb = (Rigidbody) clone;
-                //rb.velocity = new Vector3(projectileSpeed, 0.f, 0.f);
-                //clone.GetComponent<Rigidbody>().velocity = atk_arc * new Vector3(projectileSpeed, 0f, 0f);
-                clone.GetComponent<Rigidbody>().velocity = atk_arc * new Vector3(0f, 0f, -projectileSpeed);
-                //clone.GetComponent<Rigidbody>().velocity = atk_arc * (target.transform.position - transform.position);
-                //clone.GetComponent<Rigidbody>().velocity = clone.transform.TransformVector(new Vector3(0f, 0f, projectileSpeed));
-                //clone.GetComponent<Rigidbody>().velocity = clone.transform.TransformVector(new Vector3(projectileSpeed, 0f, 0f));
-                
-                Debug.Log("VEL"); Debug.Log(clone.GetComponent<Rigidbody>().velocity);
+        if (fireMode == FireMode.constant) {
+            if (refireWait <= 0) {
+                refireWait += refireDelay;
+                ready = true;
             }
+        }
+        if (fireMode == FireMode.random) {
+            if (refireWait <= 0) {
+                refireWait += refireDelay * 2 * Random.value;
+                ready = true;
+            }
+        }
+        if (fireMode == FireMode.burst) {
+            if (refireWait <= 0 && burstCount > 0) {
+                refireWait += refireDelay * 0.05f;
+                burstCount -= 1;
+                ready = true;
+            }
+            if (refireWait <= 0 && burstCount <= 0) {
+                refireWait += refireDelay;
+                burstCount = 2;
+                ready = true;
+            }
+        }
+
+        if (!ready) return;
+            
+        bool safe;
+        Quaternion atk_arc = ballistic(out safe, target.transform.position - transform.position, projectileSpeed);
+        if (safe) {
+        
+            //Debug.Log(target.transform.position - transform.position);
+            Debug.Log("ATK_ARC"); Debug.Log(atk_arc);
+            //Debug.Log(atk_arc * (target.transform.position - transform.position));
+        
+            GameObject clone = (GameObject) Instantiate(projectile, transform.position, atk_arc);
+            clone.transform.localScale = new Vector3(projectileScale, projectileScale, projectileScale);
+            
+            //Rigidbody rb = (Rigidbody) clone;
+            //rb.velocity = new Vector3(projectileSpeed, 0.f, 0.f);
+            //clone.GetComponent<Rigidbody>().velocity = atk_arc * new Vector3(projectileSpeed, 0f, 0f);
+            clone.GetComponent<Rigidbody>().velocity = atk_arc * new Vector3(0f, 0f, -projectileSpeed);
+            //clone.GetComponent<Rigidbody>().velocity = atk_arc * (target.transform.position - transform.position);
+            //clone.GetComponent<Rigidbody>().velocity = clone.transform.TransformVector(new Vector3(0f, 0f, projectileSpeed));
+            //clone.GetComponent<Rigidbody>().velocity = clone.transform.TransformVector(new Vector3(projectileSpeed, 0f, 0f));
         }
         
     }
@@ -76,12 +106,14 @@ public class TurretBehavior : MonoBehaviour {
         float first  = Mathf.Atan((speed*speed + det) / (G * atk_horiz));
         float second = Mathf.Atan((speed*speed - det) / (G * atk_horiz));
         
-        //if (first > 0.f) return first;
-        
         float atk_heading = Mathf.Atan2( -target.z, target.x ) - Mathf.PI/2;
-        float atk_incline = Mathf.Min(first, second);
-        Debug.Log("FIRST"); Debug.Log(first);
-        Debug.Log("SECOND"); Debug.Log(second);
+        float atk_incline;
+        if (fireArc == FireArc.high)
+            atk_incline = Mathf.Max(first, second);
+        else
+            atk_incline = Mathf.Min(first, second);
+            
+        
         //return Quaternion.Euler(atk_incline * Mathf.Rad2Deg, atk_heading * Mathf.Rad2Deg, 0f);
         return Quaternion.Euler(0f, atk_heading * Mathf.Rad2Deg, 0f) * Quaternion.Euler(atk_incline * Mathf.Rad2Deg, 0f, 0f);
         //return Quaternion.Euler(atk_incline * Mathf.Rad2Deg, 0f, 0f) * Quaternion.Euler(0f, atk_heading * Mathf.Rad2Deg, 0f);
