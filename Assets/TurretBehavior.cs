@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class TurretBehavior : MonoBehaviour {
 
+    public static List<TurretBehavior> Instances = new List<TurretBehavior>();
+
     public enum FireMode {constant, random, burst};
     public enum FireArc {high, low};
 
@@ -22,6 +24,7 @@ public class TurretBehavior : MonoBehaviour {
     void Start () {
         refireWait = refireDelay;
         burstCount = 3;
+        Instances.Add(this);
     }
     
     // Update is called once per frame
@@ -71,12 +74,16 @@ public class TurretBehavior : MonoBehaviour {
             //Debug.Log(atk_arc * (target.transform.position - transform.position));
         
             GameObject clone = (GameObject) Instantiate(projectile, transform.position, atk_arc);
-            clone.transform.localScale = new Vector3(projectileScale, projectileScale, projectileScale);
             
+            clone.transform.localScale = new Vector3(projectileScale, projectileScale, projectileScale);
+
             //Rigidbody rb = (Rigidbody) clone;
             //rb.velocity = new Vector3(projectileSpeed, 0.f, 0.f);
             //clone.GetComponent<Rigidbody>().velocity = atk_arc * new Vector3(projectileSpeed, 0f, 0f);
-            clone.GetComponent<Rigidbody>().velocity = atk_arc * new Vector3(0f, 0f, -projectileSpeed);
+            var p = clone.AddComponent<Projectile>();
+            p.rigBod = clone.GetComponent<Rigidbody>();
+            p.rigBod.velocity = atk_arc * new Vector3(0f, 0f, -projectileSpeed);
+
             //clone.GetComponent<Rigidbody>().velocity = atk_arc * (target.transform.position - transform.position);
             //clone.GetComponent<Rigidbody>().velocity = clone.transform.TransformVector(new Vector3(0f, 0f, projectileSpeed));
             //clone.GetComponent<Rigidbody>().velocity = clone.transform.TransformVector(new Vector3(projectileSpeed, 0f, 0f));

@@ -9,6 +9,7 @@ public class TimeSlider : MonoBehaviour {
     // For showing in debugger
     public float TimeDisplay;
     public float RefreshRate = 1.0f / 90.0f;
+    public bool ChangePhysicsRate = true;
     Vector3 minPos = Vector3.zero;
     Vector3 maxPos = Vector3.zero;
 
@@ -29,7 +30,10 @@ public class TimeSlider : MonoBehaviour {
         maxPos = transform.position + xoffset;
         rb = GetComponent<Rigidbody>();
         Time.timeScale = 1.0f;
-        Time.fixedDeltaTime = RefreshRate;
+        if (ChangePhysicsRate)
+        {
+            Time.fixedDeltaTime = RefreshRate;
+        }
     }
 
     private void LateUpdate()
@@ -61,7 +65,10 @@ public class TimeSlider : MonoBehaviour {
             Time.timeScale = TimeDisplay;
         }
 
-        Time.fixedDeltaTime = RefreshRate * Time.timeScale;
+        if (ChangePhysicsRate)
+        {
+            Time.fixedDeltaTime = RefreshRate * Time.timeScale;
+        }
     }
 
     private void OnDrawGizmos()
