@@ -23,57 +23,32 @@ public class ResetButton : MonoBehaviour {
         pressedPos = transform.position - new Vector3(0, 0.1f, 0.0f);
 	}
 
-    //IEnumerator Press(bool _down)
-    //{
-    //    isDown = _down;
+    IEnumerator Press(bool _down)
+    {
+        var eoff = new WaitForFixedUpdate();
 
-    //    //if (isDown && resettable)
-    //    //{
-    //    //    resettable.StartCoroutine(resettable.RealReset(resetTime));
-    //    //}
+        Vector3 a = readyPos;
+        Vector3 b = pressedPos;
+        if (!_down)
+        {
+            a = pressedPos;
+            b = readyPos;
+        }
 
-    //    var eoff = new WaitForFixedUpdate();
+        float dist = (a - b).magnitude;
 
-    //    Vector3 a = transform.position;
-    //    Vector3 b = pressedPos;
-    //    if (!isDown)
-    //    {
-    //        b = readyPos;
-    //    }
+        for (float t = 0; t < resetTime; t += Time.unscaledDeltaTime)
+        {
+            float it = Mathf.Clamp01(t / resetTime);
+            transform.position = Vector3.Lerp(a, b, it);
+            yield return eoff;
+        }
 
-    //    float dist = (transform.position - b).magnitude;
-    //    float timeToMove = pressSpeed / dist;
-    //    float speed = Time.fixedDeltaTime * pressSpeed;
+        transform.position = b;
+        yield return eoff;
+        yield break;
+    }
 
-
-    //    for(float t = 0; t < resetTime; t += Time.fixedDeltaTime)
-    //    {
-    //        transform.position = Vector3.Lerp(a, b, t);
-    //        yield return eoff;
-    //    }
-
-    //    transform.position = b;
-
-    //    moving = false;
-
-    //    if (isDown)
-    //    {
-    //        StartCoroutine(Press(false));
-    //        if (resettable)
-    //        {
-    //            resettable.ResetNow();
-    //        }
-    //    }
-    //    else
-    //    {
-    //        touching = null;
-    //    }
-
-    //    yield break;
-    //}
-
-
-    //private void OnTriggerEnter(Collision collision)
     private void OnTriggerEnter(Collider other)
     {
         Debug.Log(string.Format("Hit by {0}, tag {1}, layer {2}", other.name,
@@ -81,9 +56,9 @@ public class ResetButton : MonoBehaviour {
         if (!touching && other.tag == "Hands")
         {
             touching = other;
-            touchedAt = Time.time;
+            touchedAt = Time.unscaledTime;
             hasReset = false;
-            //StartCoroutine(Press(true));
+            StartCoroutine(Press(true));
         }
     }
 
@@ -91,12 +66,11 @@ public class ResetButton : MonoBehaviour {
     {
         if (touching && other == touching && !hasReset)
         {
-            float dt = Time.time - touchedAt;
+            float dt = Time.unscaledTime - touchedAt;
 
             if (dt >= this.resetTime)
             {
                 resettable.StartCoroutine(resettable.RealReset(resetTime));
-                //resettable.ResetNow();
                 hasReset = true;
             }
         }
@@ -107,6 +81,10 @@ public class ResetButton : MonoBehaviour {
         if (touching && other == touching)
         {
             touching = null;
+            if (hasReset)
+            {
+                StartCoroutine(Press(false));
+            }
         }
     }
 }

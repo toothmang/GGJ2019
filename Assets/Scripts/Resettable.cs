@@ -109,7 +109,7 @@ public class Resettable : MonoBehaviour {
 
         var eoff = new WaitForFixedUpdate();
 
-        for (float t  = 0.0f; t < resetTime; t += Time.fixedDeltaTime)
+        for (float t  = 0.0f; t < resetTime; t += Time.unscaledDeltaTime)
         {
             float it = Mathf.Clamp01(t / resetTime);
             it *= it;
