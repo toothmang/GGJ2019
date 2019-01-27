@@ -190,7 +190,13 @@ public class TurretBehavior : MonoBehaviour {
             {
                 p.rigBod.velocity = (FireAt.position - firePos).normalized * projectileSpeed;
             }
-            
+
+            var trail = clone.GetComponent<TrailRenderer>();
+            if (trail)
+            {
+                trail.Clear();
+            }
+
         }
 
     }

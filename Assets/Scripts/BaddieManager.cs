@@ -43,10 +43,7 @@ public class BaddieManager : MonoBehaviour {
             newTurret.HitPoints = 1;
             newTurret.FireAt = WebVRManager.Instance.mainCamera.transform;
             newTurret.fireAccuracyPercent = Random.Range(FireAccuracyBounds.x, FireAccuracyBounds.y);
-            //newTurret.fireArc = (TurretBehavior.FireArc)Random.Range(0, 2);
-            newTurret.fireArc = TurretBehavior.FireArc.none;
-            newTurret.fireMode = TurretBehavior.FireMode.constant;
-            //newTurret.fireMode = (TurretBehavior.FireMode)Random.Range(0, 3);
+            newTurret.fireArc = (TurretBehavior.FireArc)Random.Range(0, 3);
             newTurret.movementMode = (TurretBehavior.MovementMode)Random.Range(0, 3);
             newTurret.refireDelay = Random.Range(FireRateBounds.x, FireRateBounds.y);
             newTurret.projectileSpeed = Random.Range(ProjectileSpeedBounds.x, ProjectileSpeedBounds.y);
