@@ -1279,6 +1279,11 @@ MonoBehaviour:
   refireDelay: 1
   fireMode: 2
   fireArc: 1
+  movementMode: 0
+  waypoint: {x: 0, y: 0, z: 0}
+  stepLength: 10
+  speedLimit: 2
+  thrust: 0.0625
 --- !u!1 &1056994842
 GameObject:
   m_ObjectHideFlags: 0
