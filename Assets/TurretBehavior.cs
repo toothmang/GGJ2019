@@ -14,6 +14,7 @@ public class TurretBehavior : MonoBehaviour {
     public float projectileSpeed;
     public Object projectile;
     public GameObject target;
+    public Transform FireOffset;
     public float refireDelay;
     public FireMode fireMode;
     public FireArc fireArc;
@@ -30,7 +31,7 @@ public class TurretBehavior : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        refireWait = refireDelay;
+        refireWait = refireDelay + Random.value;
         burstCount = 3;
 
         origin = transform.position;
@@ -112,8 +113,7 @@ public class TurretBehavior : MonoBehaviour {
         bool safe;
         Quaternion atk_arc = ballistic(out safe, target.transform.position - transform.position, projectileSpeed);
         if (safe) {
-
-            GameObject clone = (GameObject) Instantiate(projectile, transform.position, atk_arc);
+            GameObject clone = (GameObject) Instantiate(projectile, FireOffset.position, atk_arc);
             clone.transform.localScale = new Vector3(projectileScale, projectileScale, projectileScale);
 
             //Rigidbody rb = (Rigidbody) clone;

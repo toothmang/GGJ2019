@@ -7,14 +7,28 @@ public class Saber : MonoBehaviour {
 
     public static List<Saber> Instances = new List<Saber>();
 
+    public Transform FireOffset;
+
     public float ReflectWeight = 20.0f;
     public float GradualTime = 2.0f;
+
+    public struct Bullet
+    {
+        public float speed;
+        public Projectile p;
+    };
+
+    Queue<Bullet> clip = new Queue<Bullet>();
+
+    public float fireRate = 0.25f;
+    public float lastFired = 0f;
 
     public enum ReflectMode
     {
         None,
         Direct,
-        Gradual
+        Gradual,
+        Fire
     }
 
     public enum ReflectTarget
@@ -35,8 +49,38 @@ public class Saber : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+		if (clip.Any() && Time.time - lastFired > fireRate)
+        {
+            Fire();
+        }
 	}
+
+    void AddToClip(Projectile p)
+    {
+        p.rigBod.isKinematic = true;
+        p.rigBod.position = new Vector3(0, -100f, 0);
+        clip.Enqueue(new Bullet
+        {
+            speed = Mathf.Max(10.0f, p.rigBod.velocity.magnitude),
+            p = p
+        });
+    }
+
+    void Fire()
+    {
+        var p = clip.Dequeue();
+
+        if (p.p)
+        {
+            p.p.rigBod.isKinematic = false;
+            p.p.rigBod.position = FireOffset.position;
+            p.p.rigBod.velocity = p.speed * FireOffset.up;
+            lastFired = Time.time;
+        }
+        
+
+
+    }
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -56,7 +100,7 @@ public class Saber : MonoBehaviour {
                 {
                     toCheck = TurretBehavior.Instances
                         .Select(tb => tb.transform)
-                        .OrderBy(t => (t.position - collision.contacts[0].point).sqrMagnitude)
+                        .OrderBy(t => (t.position - (collision.contacts.Length > 0 ? collision.contacts[0].point : collision.transform.position)).sqrMagnitude)
                         .ToList();
                     break;
                 }
@@ -65,7 +109,7 @@ public class Saber : MonoBehaviour {
                     toCheck = Instances
                         .Where(sb => sb != this)
                         .Select(sb => sb.transform)
-                        .OrderBy(t => (t.position - collision.contacts[0].point).sqrMagnitude)
+                        .OrderBy(t => (t.position - (collision.contacts.Length > 0 ? collision.contacts[0].point : collision.transform.position)).sqrMagnitude)
                         .ToList();
                     break;
                 }
@@ -79,33 +123,26 @@ public class Saber : MonoBehaviour {
                 p.rigBod.velocity = p.rigBod.velocity.magnitude * (toCheck.First().position - p.transform.position).normalized;
                 break;
             case ReflectMode.Gradual:
-                StartCoroutine(GuideProjectile(p, toCheck.First()));
+                p.StartCoroutine(p.GuideTowards(toCheck.First(), GradualTime));
                 break;
+            case ReflectMode.Fire:
+            {
+                var otherOffset = Instances
+                    .Where(sb => sb != this)
+                    .Select(sb => sb)
+                    .ToList();
+                if (otherOffset.Any())
+                {
+                    otherOffset.First().AddToClip(p);
+                }
+                break;
+            }
+                
             case ReflectMode.None:
             default:
                 break;
         }
     }
 
-    IEnumerator GuideProjectile(Projectile p, Transform target)
-    {
-        var eoff = new WaitForFixedUpdate();
-
-        var startVel = p.rigBod.velocity;
-        //var endVel = (target.position - p.rigBod.position).normalized * startVel.magnitude;
-
-        p.rigBod.useGravity = false;
-        for (float t = 0.0f; t < GradualTime; t += Time.fixedDeltaTime)
-        {
-            var endVel = (target.position - p.rigBod.position).normalized * startVel.magnitude;
-
-            float it = t / GradualTime;
-            p.rigBod.velocity = Vector3.Slerp(p.rigBod.velocity, endVel, it);
-
-            yield return eoff;
-        }
-        p.rigBod.useGravity = true;
-
-        yield break;
-    }
+    
 }
