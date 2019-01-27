@@ -12,6 +12,13 @@ public class Saber : MonoBehaviour {
     public float ReflectWeight = 20.0f;
     public float GradualTime = 2.0f;
 
+    public bool Boomerang = true;
+    float triggerStrength = 0f;
+    public float BoomerangScale = 100.0f;
+    Vector3 boomerangCenter = Vector3.zero;
+
+    Rigidbody rigBod;
+
     public struct Bullet
     {
         public float speed;
@@ -45,6 +52,7 @@ public class Saber : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         Instances.Add(this);
+        rigBod = GetComponent<Rigidbody>();
 	}
 	
 	// Update is called once per frame
@@ -53,7 +61,30 @@ public class Saber : MonoBehaviour {
         {
             Fire();
         }
-	}
+
+        float leftStrength = WebVRController.Left.GetAxis("Trigger");
+        float rightStrength = WebVRController.Right.GetAxis("Trigger");
+        
+        if (leftStrength > 0 || rightStrength > 0)
+        {
+            float totalStrength = leftStrength + rightStrength;
+
+            boomerangCenter = ((leftStrength / totalStrength) * WebVRController.Left.transform.position)
+                + ((rightStrength / totalStrength) * WebVRController.Right.transform.position);
+            triggerStrength = (leftStrength + rightStrength) * 0.5f;
+
+            Console.Instance.Text.text = string.Format("Left: {0}\nRight: {1}\nTotal: {2}\nCenter: {3}",
+                leftStrength, rightStrength, triggerStrength, boomerangCenter.ToString());
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (Boomerang)
+        {
+            rigBod.AddForce((boomerangCenter - transform.position).normalized * BoomerangScale * triggerStrength);
+        }
+    }
 
     void AddToClip(Projectile p)
     {
