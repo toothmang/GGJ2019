@@ -18,7 +18,7 @@ public class Projectile : MonoBehaviour {
         if (Time.unscaledTime - StartTime > ExpireTime)
         {
             StopAllCoroutines();
-            Destroy(gameObject);
+            SpawnBank.Instance.BulletSpawner.UnSpawnObject(gameObject);
         }
 	}
 

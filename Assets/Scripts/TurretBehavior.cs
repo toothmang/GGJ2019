@@ -6,6 +6,9 @@ public class TurretBehavior : MonoBehaviour {
 
     public static List<TurretBehavior> Instances = new List<TurretBehavior>();
 
+    public int HitPoints = 1;
+    public float MinVelocityForHit = 1.0f;
+
     public enum FireMode {constant, random, burst};
     public enum FireArc {high, low};
     public enum MovementMode {wander, patrol, stationary};
@@ -13,7 +16,7 @@ public class TurretBehavior : MonoBehaviour {
     public float projectileScale;
     public float projectileSpeed;
     public GameObject projectilePrefab;
-    public GameObject target;
+    public Transform FireAt;
     public Transform FireOffset;
     public float refireDelay;
     public FireMode fireMode;
@@ -35,7 +38,7 @@ public class TurretBehavior : MonoBehaviour {
     private int burstCount;
 
     // Use this for initialization
-    void Start () {
+    public void Start () {
         refireWait = refireDelay + Random.value;
         burstCount = 3;
 
@@ -44,13 +47,16 @@ public class TurretBehavior : MonoBehaviour {
         float angle = Random.value;
         float distance = (Random.value * 0.5f + 0.5f) * stepLength;
         waypoint = new Vector3(Mathf.Cos(angle)*distance, origin.y, Mathf.Sin(angle)*distance);
-
-        Instances.Add(this);
     }
 
     // Update is called once per frame
     void Update () {
-
+        if (HitPoints <= 0)
+        {
+            Instances.Remove(this);
+            SpawnBank.Instance.TurretSpawner.UnSpawnObject(gameObject);
+            Console.Instance.TurretsDestroyed++;
+        }
     }
 
     void OnCollisionEnter(Collision collision) {
@@ -79,6 +85,16 @@ public class TurretBehavior : MonoBehaviour {
             var shape = PartiSys.shape;
             shape.enabled = true;
             shape.shapeType = ParticleSystemShapeType.Circle;
+        }
+
+        if (collision.relativeVelocity.magnitude >= MinVelocityForHit)
+        {
+            HitPoints -= 1;
+        }
+        var p = collision.gameObject.GetComponent<Projectile>();
+        if (p)
+        {
+            SpawnBank.Instance.BulletSpawner.UnSpawnObject(p.gameObject);
         }
     }
 
@@ -145,7 +161,7 @@ public class TurretBehavior : MonoBehaviour {
         if (!ready) return;
 
         bool safe;
-        Quaternion atk_arc = ballistic(out safe, target.transform.position - transform.position, projectileSpeed);
+        Quaternion atk_arc = ballistic(out safe, FireAt.position - transform.position, projectileSpeed);
 
         if (fireAccuracyPercent < 100f)
         {
@@ -153,14 +169,14 @@ public class TurretBehavior : MonoBehaviour {
         }
 
         if (safe) {
-            GameObject clone = (GameObject) Instantiate(projectilePrefab, FireOffset.position, atk_arc);
-            clone.transform.localScale = new Vector3(projectileScale, projectileScale, projectileScale);
+            GameObject clone = SpawnBank.Instance.BulletSpawner.FromPool(FireOffset.position, atk_arc, Vector3.one * projectileScale);
 
             //Rigidbody rb = (Rigidbody) clone;
             //rb.velocity = new Vector3(projectileSpeed, 0.f, 0.f);
             //clone.GetComponent<Rigidbody>().velocity = atk_arc * new Vector3(projectileSpeed, 0f, 0f);
-            var p = clone.AddComponent<Projectile>();
-            p.rigBod = clone.GetComponent<Rigidbody>();
+            //var p = clone.AddComponent<Projectile>();
+            var p = clone.GetComponent<Projectile>();
+            p.StartTime = Time.unscaledTime;
             p.rigBod.velocity = atk_arc * new Vector3(0f, 0f, -projectileSpeed);
 
             //clone.GetComponent<Rigidbody>().velocity = atk_arc * (target.transform.position - transform.position);

@@ -13,9 +13,7 @@ public class Saber : MonoBehaviour {
     public float GradualTime = 2.0f;
 
     public bool Boomerang = true;
-    float triggerStrength = 0f;
     public float BoomerangScale = 100.0f;
-    Vector3 boomerangCenter = Vector3.zero;
 
     Rigidbody rigBod;
 
@@ -65,6 +63,14 @@ public class Saber : MonoBehaviour {
                 }
             }
         }
+
+        // Give material unique color
+        var mrs = GetComponentsInChildren<MeshRenderer>();
+        Color c = new Color(Random.value, Random.value, Random.value);
+        foreach(var mr in mrs)
+        {
+            mr.material.color = c;
+        }
 	}
 	
 	// Update is called once per frame
@@ -73,31 +79,13 @@ public class Saber : MonoBehaviour {
         {
             Fire();
         }
-
-        float leftStrength = WebVRController.Left.GetAxis("Trigger");
-        float rightStrength = WebVRController.Right.GetAxis("Trigger");
-        
-        if (leftStrength > 0 || rightStrength > 0)
-        {
-            float totalStrength = leftStrength + rightStrength;
-
-            boomerangCenter = ((leftStrength / totalStrength) * WebVRController.Left.transform.position)
-                + ((rightStrength / totalStrength) * WebVRController.Right.transform.position);
-            triggerStrength = (leftStrength + rightStrength) * 0.5f;
-        }
-        else
-        {
-            triggerStrength = 0f;
-        }
-        Console.Instance.Text.text = string.Format("Left: {0}\nRight: {1}\nTotal: {2}\nCenter: {3}",
-                leftStrength, rightStrength, triggerStrength, boomerangCenter.ToString());
     }
 
     private void FixedUpdate()
     {
-        if (Boomerang && triggerStrength > 0f)
+        if (Boomerang && Console.Instance.totalTrigger > 0f)
         {
-            rigBod.AddForce((boomerangCenter - rigBod.position).normalized * BoomerangScale * triggerStrength);
+            rigBod.AddForce((Console.Instance.weightedCenter - rigBod.position).normalized * BoomerangScale * Console.Instance.totalTrigger);
         }
     }
 
@@ -139,6 +127,8 @@ public class Saber : MonoBehaviour {
         var p = collision.gameObject.GetComponent<Projectile>();
         if (!p) return;
 
+        Console.Instance.ShotsDeflected++;
+
         List<Transform> toCheck = new List<Transform>();
         switch (reflectTarget)
         {
@@ -169,6 +159,7 @@ public class Saber : MonoBehaviour {
                 p.rigBod.velocity = p.rigBod.velocity.magnitude * (toCheck.First().position - p.transform.position).normalized;
                 break;
             case ReflectMode.Gradual:
+                Debug.Log("Firing coroutine to guide projectile");
                 p.StartCoroutine(p.GuideTowards(toCheck.First(), GradualTime));
                 break;
             case ReflectMode.Fire:

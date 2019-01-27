@@ -67,7 +67,7 @@ Transform:
   m_GameObject: {fileID: 1319018282908326}
   m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
   m_LocalPosition: {x: 0, y: -1.0999997, z: 20.21}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.15, y: 0.15, z: 0.15}
   m_Children:
   - {fileID: 4029342859508386}
   m_Father: {fileID: 0}
@@ -141,6 +141,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8834b3c9d2d3d29489b1859ea09eb819, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  HitPoints: 3
+  MinVelocityForHit: 1
   projectileScale: 0.1
   projectileSpeed: 10
   projectilePrefab: {fileID: 1917565049401232, guid: f7a20589744dffa48893aa4ba8ab8933,
@@ -151,9 +153,13 @@ MonoBehaviour:
   fireMode: 1
   fireArc: 1
   fireAccuracyPercent: 95
+  impactExploder: {fileID: 198805366898609386, guid: 313712b68ea15e54c9af661479ec03c6,
+    type: 2}
+  glancingExploder: {fileID: 198805366898609386, guid: 313712b68ea15e54c9af661479ec03c6,
+    type: 2}
   movementMode: 0
   waypoint: {x: 0, y: 0, z: 0}
-  stepLength: 3
+  stepLength: 2
   speedLimit: 1
   thrust: 0.25
 --- !u!136 &136591605229828930

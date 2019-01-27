@@ -102,7 +102,7 @@ public class Resettable : MonoBehaviour {
         var projectiles = FindObjectsOfType<Projectile>();
         foreach (var p in projectiles)
         {
-            Destroy(p.gameObject);
+            SpawnBank.Instance.BulletSpawner.UnSpawnObject(p.gameObject);
         }
 
         var trails = FindObjectsOfType<TrailRenderer>();
@@ -110,6 +110,9 @@ public class Resettable : MonoBehaviour {
         {
             t.Clear();
         }
+
+        Console.Instance.TurretsDestroyed = 0;
+        Console.Instance.ShotsDeflected = 0;
     }
     
     public IEnumerator RealReset(float resetTime)
