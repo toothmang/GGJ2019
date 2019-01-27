@@ -21,6 +21,9 @@ public class TurretBehavior : MonoBehaviour {
 
     public float fireAccuracyPercent = 100f;
 
+    public ParticleSystem impactExploder;
+    public ParticleSystem glancingExploder;
+
     public MovementMode movementMode;
     public Vector3 waypoint;
     private Vector3 origin;
@@ -48,6 +51,35 @@ public class TurretBehavior : MonoBehaviour {
     // Update is called once per frame
     void Update () {
 
+    }
+
+    void OnCollisionEnter(Collision collision) {
+        ContactPoint contact = collision.contacts[0];
+        Vector3 normal = contact.normal;
+        Vector3 forward = GetComponent<Rigidbody>().velocity;
+
+        // Takes particle system and aligns UP with the impact normal
+        Quaternion impact_align = Quaternion.FromToRotation(Vector3.up, normal);
+        // Takes particle system and aligns UP with the reflection of the forward vector,
+        //     as if glancing off of the collided surface.
+        Quaternion impact_offset = Quaternion.FromToRotation(-forward, normal);
+        Quaternion impact_oblique = impact_align * impact_offset;
+        Vector3 position = contact.point;
+
+        float angle = Mathf.Acos( Vector3.Dot(normal.normalized, forward.normalized) );
+
+        if (angle > Mathf.PI/4) {
+            ParticleSystem PartiSys = (ParticleSystem)Instantiate(glancingExploder, position, impact_oblique);
+            var shape = PartiSys.shape;
+            shape.enabled = true;
+            shape.shapeType = ParticleSystemShapeType.Cone;
+            shape.radius = 0.1f;
+        } else {
+            ParticleSystem PartiSys = (ParticleSystem)Instantiate(impactExploder, position, impact_align);
+            var shape = PartiSys.shape;
+            shape.enabled = true;
+            shape.shapeType = ParticleSystemShapeType.Circle;
+        }
     }
 
     // FixedUpdate is called once per physics update (50Hz default)
