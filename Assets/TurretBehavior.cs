@@ -12,7 +12,7 @@ public class TurretBehavior : MonoBehaviour {
 
     public float projectileScale;
     public float projectileSpeed;
-    public Object projectile;
+    public GameObject projectilePrefab;
     public GameObject target;
     public Transform FireOffset;
     public float refireDelay;
@@ -69,9 +69,9 @@ public class TurretBehavior : MonoBehaviour {
             }
             else /* movementMode == wander */
             {
-                float angle = Random.value;
+                float angle = Random.value * Mathf.PI * 2.0f;
                 float distance = (Random.value * 0.5f + 0.5f) * stepLength;
-                waypoint = new Vector3(Mathf.Cos(angle)*distance, origin.y, Mathf.Sin(angle)*distance);
+                waypoint = transform.position + new Vector3(Mathf.Cos(angle)*distance, 0.0f, Mathf.Sin(angle)*distance);
             }
         }
 
@@ -121,7 +121,7 @@ public class TurretBehavior : MonoBehaviour {
         }
 
         if (safe) {
-            GameObject clone = (GameObject) Instantiate(projectile, FireOffset.position, atk_arc);
+            GameObject clone = (GameObject) Instantiate(projectilePrefab, FireOffset.position, atk_arc);
             clone.transform.localScale = new Vector3(projectileScale, projectileScale, projectileScale);
 
             //Rigidbody rb = (Rigidbody) clone;

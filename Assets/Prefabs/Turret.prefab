@@ -65,8 +65,8 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1319018282908326}
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: -1.1, z: 20.21}
+  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
+  m_LocalPosition: {x: 0, y: -1.0999997, z: 20.21}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4029342859508386}
@@ -143,12 +143,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectileScale: 0.1
   projectileSpeed: 10
-  projectile: {fileID: 0}
+  projectilePrefab: {fileID: 1917565049401232, guid: f7a20589744dffa48893aa4ba8ab8933,
+    type: 2}
   target: {fileID: 0}
   FireOffset: {fileID: 4029342859508386}
   refireDelay: 1
-  fireMode: 2
+  fireMode: 1
   fireArc: 1
+  fireAccuracyPercent: 95
+  movementMode: 0
+  waypoint: {x: 0, y: 0, z: 0}
+  stepLength: 3
+  speedLimit: 1
+  thrust: 0.25
 --- !u!136 &136591605229828930
 CapsuleCollider:
   m_ObjectHideFlags: 1
