@@ -53,6 +53,18 @@ public class Saber : MonoBehaviour {
 	void Start () {
         Instances.Add(this);
         rigBod = GetComponent<Rigidbody>();
+        if (!rigBod)
+        {
+            foreach(Transform child in transform)
+            {
+                var cb = child.GetComponent<Rigidbody>();
+                if (cb)
+                {
+                    rigBod = cb;
+                    break;
+                }
+            }
+        }
 	}
 	
 	// Update is called once per frame
@@ -72,17 +84,20 @@ public class Saber : MonoBehaviour {
             boomerangCenter = ((leftStrength / totalStrength) * WebVRController.Left.transform.position)
                 + ((rightStrength / totalStrength) * WebVRController.Right.transform.position);
             triggerStrength = (leftStrength + rightStrength) * 0.5f;
-
-            Console.Instance.Text.text = string.Format("Left: {0}\nRight: {1}\nTotal: {2}\nCenter: {3}",
-                leftStrength, rightStrength, triggerStrength, boomerangCenter.ToString());
         }
+        else
+        {
+            triggerStrength = 0f;
+        }
+        Console.Instance.Text.text = string.Format("Left: {0}\nRight: {1}\nTotal: {2}\nCenter: {3}",
+                leftStrength, rightStrength, triggerStrength, boomerangCenter.ToString());
     }
 
     private void FixedUpdate()
     {
-        if (Boomerang)
+        if (Boomerang && triggerStrength > 0f)
         {
-            rigBod.AddForce((boomerangCenter - transform.position).normalized * BoomerangScale * triggerStrength);
+            rigBod.AddForce((boomerangCenter - rigBod.position).normalized * BoomerangScale * triggerStrength);
         }
     }
 
