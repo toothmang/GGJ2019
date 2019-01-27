@@ -559,7 +559,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4771377543876028, guid: 37018db56623e764d9532fb25e04fdc8, type: 2}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4771377543876028, guid: 37018db56623e764d9532fb25e04fdc8, type: 2}
       propertyPath: m_LocalRotation.z
@@ -567,17 +567,12 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4771377543876028, guid: 37018db56623e764d9532fb25e04fdc8, type: 2}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4771377543876028, guid: 37018db56623e764d9532fb25e04fdc8, type: 2}
       propertyPath: m_RootOrder
-      value: 7
+      value: 6
       objectReference: {fileID: 0}
-    - target: {fileID: 114691244093627788, guid: 37018db56623e764d9532fb25e04fdc8,
-        type: 2}
-      propertyPath: target
-      value: 
-      objectReference: {fileID: 1302711619}
     - target: {fileID: 114691244093627788, guid: 37018db56623e764d9532fb25e04fdc8,
         type: 2}
       propertyPath: projectile
@@ -585,14 +580,9 @@ Prefab:
       objectReference: {fileID: 440688400}
     - target: {fileID: 114691244093627788, guid: 37018db56623e764d9532fb25e04fdc8,
         type: 2}
-      propertyPath: fireArc
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 54407703901501258, guid: 37018db56623e764d9532fb25e04fdc8,
-        type: 2}
-      propertyPath: m_Mass
-      value: 20
-      objectReference: {fileID: 0}
+      propertyPath: target
+      value: 
+      objectReference: {fileID: 1302711619}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 37018db56623e764d9532fb25e04fdc8, type: 2}
   m_IsPrefabAsset: 0
@@ -1652,7 +1642,25 @@ Prefab:
     - target: {fileID: 114160647732233660, guid: 3efea525a9ac2824dac4b894112808a0,
         type: 2}
       propertyPath: reflectMode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114160647732233660, guid: 3efea525a9ac2824dac4b894112808a0,
+        type: 2}
+      propertyPath: reflectTarget
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4756136719694188, guid: 3efea525a9ac2824dac4b894112808a0, type: 2}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4756136719694188, guid: 3efea525a9ac2824dac4b894112808a0, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114160647732233660, guid: 3efea525a9ac2824dac4b894112808a0,
+        type: 2}
+      propertyPath: fireRate
+      value: 0.01
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3efea525a9ac2824dac4b894112808a0, type: 2}
@@ -2784,39 +2792,24 @@ Prefab:
       propertyPath: m_Name
       value: LeftLongSaber
       objectReference: {fileID: 0}
-    - target: {fileID: 4691567842060308, guid: 3efea525a9ac2824dac4b894112808a0, type: 2}
-      propertyPath: m_LocalScale.y
-      value: 3.3333328
-      objectReference: {fileID: 0}
-    - target: {fileID: 54065111584060980, guid: 3efea525a9ac2824dac4b894112808a0,
-        type: 2}
-      propertyPath: m_Mass
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 54065111584060980, guid: 3efea525a9ac2824dac4b894112808a0,
-        type: 2}
-      propertyPath: m_CollisionDetection
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 54065111584060980, guid: 3efea525a9ac2824dac4b894112808a0,
-        type: 2}
-      propertyPath: m_Interpolate
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114160647732233660, guid: 3efea525a9ac2824dac4b894112808a0,
-        type: 2}
-      propertyPath: isLeft
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 114160647732233660, guid: 3efea525a9ac2824dac4b894112808a0,
         type: 2}
       propertyPath: reflectMode
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
-    - target: {fileID: 54065111584060980, guid: 3efea525a9ac2824dac4b894112808a0,
+    - target: {fileID: 4756136719694188, guid: 3efea525a9ac2824dac4b894112808a0, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114160647732233660, guid: 3efea525a9ac2824dac4b894112808a0,
         type: 2}
-      propertyPath: m_IsKinematic
-      value: 0
+      propertyPath: fireRate
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 114160647732233660, guid: 3efea525a9ac2824dac4b894112808a0,
+        type: 2}
+      propertyPath: reflectTarget
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3efea525a9ac2824dac4b894112808a0, type: 2}
