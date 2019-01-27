@@ -993,11 +993,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8834b3c9d2d3d29489b1859ea09eb819, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  HitPoints: 1
+  MinVelocityForHit: 1
   projectileScale: 0.1
   projectileSpeed: 20
   projectilePrefab: {fileID: 1917565049401232, guid: f7a20589744dffa48893aa4ba8ab8933,
     type: 2}
-  target: {fileID: 922208525}
+  FireAt: {fileID: 922208526}
   FireOffset: {fileID: 1543381775}
   refireDelay: 0.25
   fireMode: 0
@@ -1110,6 +1112,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BulletSpawner: {fileID: 715937180}
+  TurretSpawner: {fileID: 0}
 --- !u!4 &877737296
 Transform:
   m_ObjectHideFlags: 0
@@ -1239,11 +1242,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8834b3c9d2d3d29489b1859ea09eb819, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  HitPoints: 1
+  MinVelocityForHit: 1
   projectileScale: 0.1
   projectileSpeed: 20
   projectilePrefab: {fileID: 1917565049401232, guid: f7a20589744dffa48893aa4ba8ab8933,
     type: 2}
-  target: {fileID: 869079687}
+  FireAt: {fileID: 869079688}
   FireOffset: {fileID: 2021242284}
   refireDelay: 1
   fireMode: 2

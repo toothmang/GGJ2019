@@ -51,7 +51,7 @@ public class TurretBehavior : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        if (HitPoints <= 0)
+        if (HitPoints <= 0 && SpawnBank.Instance.TurretSpawner)
         {
             Instances.Remove(this);
             SpawnBank.Instance.TurretSpawner.UnSpawnObject(gameObject);
