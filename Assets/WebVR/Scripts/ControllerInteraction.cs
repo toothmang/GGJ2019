@@ -58,19 +58,19 @@ public class ControllerInteraction : MonoBehaviour
             }
             else
             {
-                Vector3 currentTractorPos = currentRigidBody.position;
-                Quaternion currentTractorRot = currentRigidBody.rotation;
-                Vector3 tv = (currentTractorPos - lastTractorPos) / Time.deltaTime;
-                lastTractorPos = currentTractorPos;
+                Vector3 currentPos = currentRigidBody.position;
+                Quaternion currentRot = currentRigidBody.rotation;
+                Vector3 tv = (currentPos - lastTractorPos) / Time.deltaTime;
+                lastTractorPos = currentPos;
 
 
                 currentVelocity.Update(tv);
 
                 // Update angular velocity
-                Quaternion av = currentTractorRot * Quaternion.Inverse(lastTractorRot);
+                Quaternion av = currentRot * Quaternion.Inverse(lastTractorRot);
                 Vector3 ave = av.eulerAngles;
                 Vector3 avd = new Vector3(Mathf.DeltaAngle(0f, ave.x), Mathf.DeltaAngle(0f, ave.y), Mathf.DeltaAngle(0f, ave.z));
-                lastTractorRot = currentTractorRot;
+                lastTractorRot = currentRot;
                 currentAngularVelocity.Update(avd / Time.deltaTime);
             }
             
@@ -89,7 +89,11 @@ public class ControllerInteraction : MonoBehaviour
         if (other.gameObject.tag != "Interactable")
             return;
 
-        contactRigidBodies.Add(other.gameObject.GetComponent<Rigidbody> ());
+        var cb = other.gameObject.GetComponent<Rigidbody>();
+        if (cb)
+        {
+            contactRigidBodies.Add(cb);
+        }
     }
 
     void OnTriggerExit(Collider other)

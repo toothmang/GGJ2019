@@ -87,6 +87,12 @@ public struct TF
         tf.localScale = scale;
     }
 
+    public void Apply(Rigidbody rigBod)
+    {
+        rigBod.position = position;
+        rigBod.rotation = rotation;
+    }
+
     public Fields Diff(TF tf)
     {
         Fields fields = Fields.None;

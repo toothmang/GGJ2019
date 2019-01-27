@@ -270,9 +270,8 @@ PlayerSettings:
   openGLRequireES31: 0
   openGLRequireES31AEP: 0
   m_TemplateCustomTags:
-    DESCRIPTION: Complete interactive 3D scene demo made in Unity and exported to
-      WebVR with the WebVR template of the Unity WebVR assets
-    NAME: Sunny Desert
+    DESCRIPTION: 2THS1M-GGJ2019
+    NAME: 2THS1M-GGJ2019
   mobileMTRendering:
     Android: 1
     iPhone: 1

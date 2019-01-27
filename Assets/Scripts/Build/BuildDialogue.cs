@@ -11,8 +11,8 @@ public class BuildDialogue : EditorWindow
     public static string sceneFile = "Assets/Scenes/Default.Unity";
     public static string buildPath = "Build";
     public static BuildTarget buildTarget = BuildTarget.WebGL;
-    public static bool devBuild = true;
-    public static bool preBuilt = true;
+    public static bool devBuild = false;
+    public static bool preBuilt = false;
     public static bool autoRun = false;
 
     [MenuItem("Build/Set details and build")]
