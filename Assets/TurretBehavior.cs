@@ -19,6 +19,8 @@ public class TurretBehavior : MonoBehaviour {
     public FireMode fireMode;
     public FireArc fireArc;
 
+    public float fireAccuracyPercent = 100f;
+
     public MovementMode movementMode;
     public Vector3 waypoint;
     private Vector3 origin;
@@ -112,6 +114,12 @@ public class TurretBehavior : MonoBehaviour {
 
         bool safe;
         Quaternion atk_arc = ballistic(out safe, target.transform.position - transform.position, projectileSpeed);
+
+        if (fireAccuracyPercent < 100f)
+        {
+            atk_arc = Quaternion.Slerp(atk_arc, Random.rotationUniform, 1f - 0.01f * fireAccuracyPercent);
+        }
+
         if (safe) {
             GameObject clone = (GameObject) Instantiate(projectile, FireOffset.position, atk_arc);
             clone.transform.localScale = new Vector3(projectileScale, projectileScale, projectileScale);
