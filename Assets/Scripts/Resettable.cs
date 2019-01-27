@@ -97,6 +97,19 @@ public class Resettable : MonoBehaviour {
                 rb.angularVelocity = Vector3.zero;
             }
         }
+
+        // Clear projectiles
+        var projectiles = FindObjectsOfType<Projectile>();
+        foreach (var p in projectiles)
+        {
+            Destroy(p.gameObject);
+        }
+
+        var trails = FindObjectsOfType<TrailRenderer>();
+        foreach(var t in trails)
+        {
+            t.Clear();
+        }
     }
     
     public IEnumerator RealReset(float resetTime)
