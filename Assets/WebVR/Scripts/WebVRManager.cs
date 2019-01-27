@@ -37,6 +37,8 @@ public class WebVRManager : MonoBehaviour
 
     public VRCameraAttachment cameraAttachment;
 
+    public Camera mainCamera;
+
     public delegate void HeadsetUpdate(
         Matrix4x4 leftProjectionMatrix,
         Matrix4x4 leftViewMatrix,

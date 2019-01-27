@@ -10,14 +10,14 @@ public class TurretBehavior : MonoBehaviour {
     public float MinVelocityForHit = 1.0f;
 
     public enum FireMode {constant, random, burst};
-    public enum FireArc {high, low};
+    public enum FireArc {high, low, none};
     public enum MovementMode {wander, patrol, stationary};
 
     public float projectileScale;
     public float projectileSpeed;
     public GameObject projectilePrefab;
     public Transform FireAt;
-    public Transform FireOffset;
+    public float FireOffset = 1.2f;
     public float refireDelay;
     public FireMode fireMode;
     public FireArc fireArc;
@@ -36,6 +36,8 @@ public class TurretBehavior : MonoBehaviour {
 
     private float refireWait;
     private int burstCount;
+
+    private Vector3 firePos;
 
     // Use this for initialization
     public void Start () {
@@ -158,18 +160,21 @@ public class TurretBehavior : MonoBehaviour {
             }
         }
 
+        firePos = transform.position + ((FireAt.position - transform.position).normalized * FireOffset);
+
         if (!ready) return;
 
         bool safe;
-        Quaternion atk_arc = ballistic(out safe, FireAt.position - transform.position, projectileSpeed);
 
-        if (fireAccuracyPercent < 100f)
-        {
-            atk_arc = Quaternion.Slerp(atk_arc, Random.rotationUniform, 1f - 0.01f * fireAccuracyPercent);
-        }
+        Quaternion atk_arc = ballistic(out safe, FireAt.position - firePos, projectileSpeed);
 
         if (safe) {
-            GameObject clone = SpawnBank.Instance.BulletSpawner.FromPool(FireOffset.position, atk_arc, Vector3.one * projectileScale);
+            if (fireAccuracyPercent < 100f)
+            {
+                atk_arc = Quaternion.Slerp(atk_arc, Random.rotationUniform, 1f - 0.01f * fireAccuracyPercent);
+            }
+
+            GameObject clone = SpawnBank.Instance.BulletSpawner.FromPool(firePos, Quaternion.identity, Vector3.one * projectileScale);
 
             //Rigidbody rb = (Rigidbody) clone;
             //rb.velocity = new Vector3(projectileSpeed, 0.f, 0.f);
@@ -177,11 +182,15 @@ public class TurretBehavior : MonoBehaviour {
             //var p = clone.AddComponent<Projectile>();
             var p = clone.GetComponent<Projectile>();
             p.StartTime = Time.unscaledTime;
-            p.rigBod.velocity = atk_arc * new Vector3(0f, 0f, -projectileSpeed);
-
-            //clone.GetComponent<Rigidbody>().velocity = atk_arc * (target.transform.position - transform.position);
-            //clone.GetComponent<Rigidbody>().velocity = clone.transform.TransformVector(new Vector3(0f, 0f, projectileSpeed));
-            //clone.GetComponent<Rigidbody>().velocity = clone.transform.TransformVector(new Vector3(projectileSpeed, 0f, 0f));
+            if (fireArc != FireArc.none)
+            {
+                p.rigBod.velocity = atk_arc * new Vector3(0f, 0f, -projectileSpeed);
+            }
+            else
+            {
+                p.rigBod.velocity = (FireAt.position - firePos).normalized * projectileSpeed;
+            }
+            
         }
 
     }
@@ -209,17 +218,22 @@ public class TurretBehavior : MonoBehaviour {
         float second = Mathf.Atan((speed*speed - det) / (G * atk_horiz));
 
         float atk_heading = Mathf.Atan2( -target.z, target.x ) - Mathf.PI/2;
-        float atk_incline;
+        float atk_incline = 0.0f;
         if (fireArc == FireArc.high)
             atk_incline = Mathf.Max(first, second);
-        else
+        else if (fireArc == FireArc.low)
             atk_incline = Mathf.Min(first, second);
-
 
         //return Quaternion.Euler(atk_incline * Mathf.Rad2Deg, atk_heading * Mathf.Rad2Deg, 0f);
         return Quaternion.Euler(0f, atk_heading * Mathf.Rad2Deg, 0f) * Quaternion.Euler(atk_incline * Mathf.Rad2Deg, 0f, 0f);
         //return Quaternion.Euler(atk_incline * Mathf.Rad2Deg, 0f, 0f) * Quaternion.Euler(0f, atk_heading * Mathf.Rad2Deg, 0f);
         //return Quaternion.Euler(atk_incline * Mathf.Rad2Deg, 0f, 0f);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawSphere(firePos, 0.05f);
+        
     }
 
 }

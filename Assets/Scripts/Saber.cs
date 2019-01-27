@@ -159,7 +159,6 @@ public class Saber : MonoBehaviour {
                 p.rigBod.velocity = p.rigBod.velocity.magnitude * (toCheck.First().position - p.transform.position).normalized;
                 break;
             case ReflectMode.Gradual:
-                Debug.Log("Firing coroutine to guide projectile");
                 p.StartCoroutine(p.GuideTowards(toCheck.First(), GradualTime));
                 break;
             case ReflectMode.Fire:
