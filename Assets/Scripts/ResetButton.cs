@@ -3,6 +3,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+
+[CustomEditor(typeof(ResetButton))]
+public class ResetButtonEditor : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+
+        ResetButton myTarget = (ResetButton)target;
+
+        if (GUILayout.Button("Reset"))
+        {
+            myTarget.resettable.ResetNow();
+        }
+    }
+}
+#endif
+
 public class ResetButton : MonoBehaviour {
 
     public Resettable resettable;
@@ -45,8 +65,8 @@ public class ResetButton : MonoBehaviour {
         }
 
         transform.position = b;
-        yield return eoff;
-        yield break;
+        //yield return eoff;
+        //yield break;
     }
 
     private void OnTriggerEnter(Collider other)

@@ -21,9 +21,13 @@ public class Console : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
-        leftTrigger = WebVRController.Left.GetAxis("Trigger");
-        rightTrigger = WebVRController.Right.GetAxis("Trigger");
+        leftTrigger = 0;
+        rightTrigger = 0;
+        if (WebVRController.Left && WebVRController.Right)
+        {
+            leftTrigger = WebVRController.Left.GetAxis("Trigger");
+            rightTrigger = WebVRController.Right.GetAxis("Trigger");
+        }
 
         if (leftTrigger > 0 || rightTrigger > 0)
         {

@@ -11,9 +11,19 @@ public class BaddieManager : MonoBehaviour {
     public Vector2 FireAccuracyBounds = new Vector2(0.9f, 0.99f);
     public Vector2 ProjectileSpeedBounds = new Vector2(5.0f, 20.0f);
 
+    Camera mainCamera;
+
 	// Use this for initialization
 	void Start () {
-		
+        var mcGO = GameObject.Find("CameraMain");
+        if (mcGO)
+        {
+            mainCamera = mcGO.GetComponent<Camera>();
+        }
+        else if (WebVRManager.Instance && WebVRManager.Instance.mainCamera)
+        {
+            mainCamera = WebVRManager.Instance.mainCamera;
+        }
 	}
 	
 	// Update is called once per frame
@@ -33,15 +43,19 @@ public class BaddieManager : MonoBehaviour {
             }
 
             // Orient the turret so it's facing the target
-            var camPos = WebVRManager.Instance.mainCamera.transform.position;
+            //var camPos = WebVRManager.Instance.mainCamera.transform.position;
+            var camPos = mainCamera.transform.position;
             var spawnToCam = camPos - spawnPos;
 
-            var newTurretGO = SpawnBank.Instance.TurretSpawner.FromPool(spawnPos, Quaternion.identity, Vector3.one * Random.Range(ScaleBounds.x, ScaleBounds.y));
+            var newTurretGO = SpawnBank.Instance.TurretSpawner.FromPool(spawnPos, 
+                Quaternion.identity, Vector3.one * Random.Range(ScaleBounds.x, ScaleBounds.y));
 
-            newTurretGO.transform.rotation = Quaternion.FromToRotation(newTurretGO.transform.forward, spawnToCam.normalized);
+            newTurretGO.transform.rotation = Quaternion.FromToRotation(
+                newTurretGO.transform.forward, spawnToCam.normalized);
+
             var newTurret = newTurretGO.GetComponent<TurretBehavior>();
             newTurret.HitPoints = 1;
-            newTurret.FireAt = WebVRManager.Instance.mainCamera.transform;
+            newTurret.FireAt = mainCamera.transform;
             newTurret.fireAccuracyPercent = Random.Range(FireAccuracyBounds.x, FireAccuracyBounds.y);
             newTurret.fireArc = (TurretBehavior.FireArc)Random.Range(0, 3);
             newTurret.movementMode = (TurretBehavior.MovementMode)Random.Range(0, 3);

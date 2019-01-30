@@ -90,7 +90,7 @@ public class Spawner : MonoBehaviour
             {
                 result = ActivatedAt.First().Value;
                 
-                Debug.Log("No inactive objects, returning " + result.name);
+                //Debug.Log("No inactive objects, returning " + result.name);
             }
         }
         else

@@ -39,6 +39,17 @@ public class TurretBehavior : MonoBehaviour {
 
     private Vector3 firePos;
 
+    private bool chargingUp = false;
+    // Allows you to set the value in the Editor Inspector while maintaining in-code privacy
+    [SerializeField]
+    private float animTime = 1.0f;
+
+    public Vector3 velocity;
+    public Vector3 position;
+    public Vector3 targetPosition;
+    public Vector3 attack;
+    public Quaternion attack_q;
+
     // Use this for initialization
     public void Start () {
         refireWait = refireDelay + Random.value;
@@ -100,6 +111,43 @@ public class TurretBehavior : MonoBehaviour {
         }
     }
 
+    IEnumerator ChargeUp()
+    {
+        // Block against starting multiple coroutines
+        if (chargingUp) yield break;
+        chargingUp = true;
+
+        // Can declare your wait amount as a variable and reuse it
+        // See also
+        // var eof = new WaitForEndOfFrame(); // called once per Update() loop
+        var eoff = new WaitForFixedUpdate(); // called once per FixedUpdate() loop. Good for setting transforms/rotations/rigibodies
+        //var eoff = new WaitForSeconds(); // called once per x seconds, but is affected by time scale
+        //var eoff = new WaitForSecondsRealtime(); // called once per x seconds without time scale 
+
+        Quaternion startRot = transform.rotation;
+        Vector3 startScale = transform.localScale;
+
+        for (float t = 0; t < animTime; t += Time.fixedDeltaTime)    // Docs say you can use Time.deltaTime since it picks the right delta per update type
+        {
+            float it = Mathf.Clamp01(t / 1.0f);
+            transform.rotation = Quaternion.Slerp(startRot, Random.rotationUniform, it * it * 0.5f);
+            transform.localScale = Vector3.Lerp(startScale * 1.5f, startScale, 1.0f - (it * it));
+            yield return eoff;
+        }
+
+        // No long-term harm done
+        transform.rotation = startRot;
+        transform.localScale = startScale;
+        
+        // Since we set the transform, wait for one more fixed update
+        yield return eoff;
+        chargingUp = false;
+        
+
+        // Can also call yield return null, or simply nothing at the end of a coroutine function and it should terminate just the same.
+        yield break;
+    }
+
     // FixedUpdate is called once per physics update (50Hz default)
     void FixedUpdate () {
         Vector3 vel = GetComponent<Rigidbody>().velocity;
@@ -135,6 +183,12 @@ public class TurretBehavior : MonoBehaviour {
 
         bool ready = false;
 
+        // Coroutine should set the flag so this is only called once per shot
+        //if (refireWait <= animTime + 1.0e-5 && !chargingUp)
+        //{
+        //    StartCoroutine(ChargeUp());
+        //}
+
         if (fireMode == FireMode.constant) {
             if (refireWait <= 0) {
                 refireWait += refireDelay;
@@ -160,7 +214,7 @@ public class TurretBehavior : MonoBehaviour {
             }
         }
 
-        firePos = transform.position + ((FireAt.position - transform.position).normalized * FireOffset);
+        firePos = Vector3.MoveTowards(transform.position, FireAt.position, FireOffset);
 
         if (!ready) return;
 
@@ -175,11 +229,15 @@ public class TurretBehavior : MonoBehaviour {
             }
 
             GameObject clone = SpawnBank.Instance.BulletSpawner.FromPool(firePos, Quaternion.identity, Vector3.one * projectileScale);
+            //GameObject clone = Instantiate(projectilePrefab, firePos, atk_arc);
 
             //Rigidbody rb = (Rigidbody) clone;
             //rb.velocity = new Vector3(projectileSpeed, 0.f, 0.f);
             //clone.GetComponent<Rigidbody>().velocity = atk_arc * new Vector3(projectileSpeed, 0f, 0f);
             //var p = clone.AddComponent<Projectile>();
+
+            //clone.transform.parent = null;
+            
             var p = clone.GetComponent<Projectile>();
             p.StartTime = Time.unscaledTime;
             if (fireArc != FireArc.none)
@@ -197,8 +255,46 @@ public class TurretBehavior : MonoBehaviour {
                 trail.Clear();
             }
 
+            velocity = p.rigBod.velocity;
+            position = firePos;
+            attack = atk_arc.eulerAngles;
+            attack_q = atk_arc;
+            targetPosition = FireAt.position;
         }
+    }
 
+    private void OnDrawGizmos()
+    {
+        // Firing position
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(firePos, 0.05f);
+        // Fire position
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(position, 0.05f);
+        // Target position
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(targetPosition, 0.05f);
+
+        // Show axes of attack
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(position, position + (attack_q * Vector3.right));
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(position, position + (attack_q * Vector3.up));
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(position, position + (attack_q * Vector3.forward));
+
+        Vector3 lastPos = position;
+        Vector3 lastVel = velocity;
+        Vector3 g = Physics.gravity;
+        float dt = 0.1f;
+
+        Gizmos.color = Color.magenta;
+        for(float t = dt; t < 3.0f; t += dt)
+        {
+            Vector3 newPos = position + lastVel * t + (0.5f * g * t * t);
+            Gizmos.DrawLine(lastPos, newPos);
+            lastPos = newPos;
+        }
     }
 
     Quaternion ballistic(out bool safe, Vector3 target, float speed) {
@@ -234,12 +330,6 @@ public class TurretBehavior : MonoBehaviour {
         return Quaternion.Euler(0f, atk_heading * Mathf.Rad2Deg, 0f) * Quaternion.Euler(atk_incline * Mathf.Rad2Deg, 0f, 0f);
         //return Quaternion.Euler(atk_incline * Mathf.Rad2Deg, 0f, 0f) * Quaternion.Euler(0f, atk_heading * Mathf.Rad2Deg, 0f);
         //return Quaternion.Euler(atk_incline * Mathf.Rad2Deg, 0f, 0f);
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawSphere(firePos, 0.05f);
-        
     }
 
 }
