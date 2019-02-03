@@ -5691,6 +5691,7 @@ MonoBehaviour:
   leftTrigger: 0
   rightTrigger: 0
   totalTrigger: 0
+  extra: 
   weightedCenter: {x: 0, y: 0, z: 0}
 --- !u!1 &402092556
 GameObject:
@@ -7526,12 +7527,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ea520f87e1b8a048a769a1948ce111f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxEnemies: 0
-  RadiusBounds: {x: 3, y: 5}
+  MaxEnemies: 4
+  RadiusBounds: {x: 4, y: 6}
   ScaleBounds: {x: 0.3, y: 0.6}
   FireRateBounds: {x: 0.1, y: 2}
-  FireAccuracyBounds: {x: 90, y: 100}
-  ProjectileSpeedBounds: {x: 5, y: 20}
+  FireAccuracyBounds: {x: 60, y: 100}
+  ProjectileSpeedBounds: {x: 1, y: 15}
 --- !u!1001 &513269019
 Prefab:
   m_ObjectHideFlags: 0
@@ -28001,6 +28002,7 @@ MonoBehaviour:
   replayColor: {r: 0.5019608, g: 0, b: 1, a: 0}
   hitGlowTime: 0.1
   lastHitTimer: 5
+  loopRhythm: 1
 --- !u!65 &2138985178
 BoxCollider:
   m_ObjectHideFlags: 0
