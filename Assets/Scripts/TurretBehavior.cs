@@ -179,7 +179,8 @@ public class TurretBehavior : MonoBehaviour {
         // Remember to actually apply the changes we've made to the velocity!
         GetComponent<Rigidbody>().velocity = vel;
 
-        refireWait -= Time.deltaTime;
+        //refireWait -= Time.deltaTime;
+        refireWait -= Time.unscaledDeltaTime;
 
         bool ready = false;
 

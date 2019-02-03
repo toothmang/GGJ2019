@@ -13,6 +13,7 @@ public class Console : MonoBehaviour {
     public float leftTrigger = 0;
     public float rightTrigger = 0;
     public float totalTrigger = 0;
+    public string extra = "";
     public Vector3 weightedCenter = Vector3.zero;
 	// Use this for initialization
 	void Start () {
@@ -42,7 +43,7 @@ public class Console : MonoBehaviour {
             totalTrigger = 0f;
         }
 
-        Text.text = string.Format("Turrets destroyed: {0}\nShots deflected: {1}\nLeft trigger: {2}\nRight trigger: {3}\nTotal: {4}",
-                TurretsDestroyed, ShotsDeflected, leftTrigger, rightTrigger, totalTrigger);
+        Text.text = string.Format("Turrets destroyed: {0}\nShots deflected: {1}\nLeft trigger: {2}\nRight trigger: {3}\nTotal: {4}\nExtra: {5}",
+                TurretsDestroyed, ShotsDeflected, leftTrigger, rightTrigger, totalTrigger, extra);
     }
 }

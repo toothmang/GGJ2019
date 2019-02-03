@@ -127,6 +127,26 @@ public class ControllerInteraction : MonoBehaviour
             cb.angularVelocity = currentAngularVelocity.value * Mathf.Deg2Rad;
         }
 
+        var saber = currentRigidBody.GetComponent<Saber>();
+        if (!saber)
+        {
+            saber = currentRigidBody.GetComponentInParent<Saber>();
+        }
+
+        if (saber && currentVelocity.value.magnitude > 1.0f)
+        {
+            var toCheck = TurretBehavior.Instances
+                        .Select(tb => tb.transform)
+                        .OrderBy(t => (t.position - saber.transform.position).sqrMagnitude)
+                        .ToList();
+
+            if (toCheck.Any())
+            {
+                saber.StartCoroutine(Projectile.GuideTowards(currentRigidBody, toCheck.First(), 2.0f));
+            }
+            
+        }
+
         currentVelocity.Clear();
         currentAngularVelocity.Clear();
         currentRigidBody = null;

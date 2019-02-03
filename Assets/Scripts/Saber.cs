@@ -119,6 +119,12 @@ public class Saber : MonoBehaviour {
     private void OnCollisionEnter(Collision collision)
     {
         AudioEvents.PlayAt(collision.contacts[0].point);
+
+        var turret = collision.gameObject.GetComponent<TurretBehavior>();
+        if (turret)
+        {
+            StopAllCoroutines();
+        }
     }
 
     // On exit, check if we can redirect any projectiles
@@ -159,7 +165,7 @@ public class Saber : MonoBehaviour {
                 p.rigBod.velocity = p.rigBod.velocity.magnitude * (toCheck.First().position - p.transform.position).normalized;
                 break;
             case ReflectMode.Gradual:
-                p.StartCoroutine(p.GuideTowards(toCheck.First(), GradualTime));
+                p.StartCoroutine(Projectile.GuideTowards(p.rigBod, toCheck.First(), GradualTime));
                 break;
             case ReflectMode.Fire:
             {

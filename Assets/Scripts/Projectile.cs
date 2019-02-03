@@ -22,11 +22,13 @@ public class Projectile : MonoBehaviour {
         }
 	}
 
-    public IEnumerator GuideTowards(Transform target, float guideTime)
+    public static IEnumerator GuideTowards(Rigidbody rigBod, Transform target, float guideTime)
     {
         var eoff = new WaitForFixedUpdate();
 
         var startVel = rigBod.velocity;
+
+        var gravity = rigBod.useGravity;
 
         rigBod.useGravity = false;
         for (float t = 0.0f; t < guideTime; t += Time.unscaledDeltaTime)
@@ -38,7 +40,7 @@ public class Projectile : MonoBehaviour {
 
             yield return eoff;
         }
-        rigBod.useGravity = true;
+        rigBod.useGravity = gravity;
 
         yield break;
     }
