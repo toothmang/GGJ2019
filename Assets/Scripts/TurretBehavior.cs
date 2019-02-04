@@ -9,7 +9,7 @@ public class TurretBehavior : MonoBehaviour {
     public int HitPoints = 1;
     public float MinVelocityForHit = 1.0f;
 
-    public enum FireMode {constant, random, burst};
+    public enum FireMode {constant, random, burst, rhythm};
     public enum FireArc {high, low, none};
     public enum MovementMode {wander, patrol, stationary};
 
@@ -60,6 +60,14 @@ public class TurretBehavior : MonoBehaviour {
         float angle = Random.value;
         float distance = (Random.value * 0.5f + 0.5f) * stepLength;
         waypoint = new Vector3(Mathf.Cos(angle)*distance, origin.y, Mathf.Sin(angle)*distance);
+
+        if (fireMode == FireMode.rhythm)
+        {
+            RhythmRecorder.Instance.OnHit += () =>
+            {
+                Fire();
+            };
+        }
     }
 
     // Update is called once per frame
@@ -215,15 +223,22 @@ public class TurretBehavior : MonoBehaviour {
             }
         }
 
-        firePos = Vector3.MoveTowards(transform.position, FireAt.position, FireOffset);
+        if (ready)
+        {
+            Fire();
+        }
+    }
 
-        if (!ready) return;
+    private void Fire()
+    {
+        firePos = Vector3.MoveTowards(transform.position, FireAt.position, FireOffset);
 
         bool safe;
 
         Quaternion atk_arc = ballistic(out safe, FireAt.position - firePos, projectileSpeed);
 
-        if (safe) {
+        if (safe)
+        {
             if (fireAccuracyPercent < 100f)
             {
                 atk_arc = Quaternion.Slerp(atk_arc, Random.rotationUniform, 1f - 0.01f * fireAccuracyPercent);
@@ -238,7 +253,7 @@ public class TurretBehavior : MonoBehaviour {
             //var p = clone.AddComponent<Projectile>();
 
             //clone.transform.parent = null;
-            
+
             var p = clone.GetComponent<Projectile>();
             p.StartTime = Time.unscaledTime;
             if (fireArc != FireArc.none)

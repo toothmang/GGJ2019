@@ -162,10 +162,17 @@ public class Saber : MonoBehaviour {
         switch (reflectMode)
         {
             case ReflectMode.Direct:
-                p.rigBod.velocity = p.rigBod.velocity.magnitude * (toCheck.First().position - p.transform.position).normalized;
+                if (toCheck.Any())
+                {
+                    p.rigBod.velocity = p.rigBod.velocity.magnitude * (toCheck.First().position - p.transform.position).normalized;
+                }
                 break;
             case ReflectMode.Gradual:
-                p.StartCoroutine(Projectile.GuideTowards(p.rigBod, toCheck.First(), GradualTime));
+                if (toCheck.Any())
+                {
+                    p.StartCoroutine(Projectile.GuideTowards(p.rigBod, toCheck.First(), GradualTime));
+                }
+                
                 break;
             case ReflectMode.Fire:
             {

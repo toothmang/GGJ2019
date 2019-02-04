@@ -43,7 +43,7 @@ public class Console : MonoBehaviour {
             totalTrigger = 0f;
         }
 
-        Text.text = string.Format("Turrets destroyed: {0}\nShots deflected: {1}\nLeft trigger: {2}\nRight trigger: {3}\nTotal: {4}\nExtra: {5}",
-                TurretsDestroyed, ShotsDeflected, leftTrigger, rightTrigger, totalTrigger, extra);
+        Text.text = string.Format("Turrets destroyed: {0}\nShots deflected: {1}\nLeft trigger: {2}\nRight trigger: {3}\nTotal: {4}\nHP: {5}\nExtra: {6}",
+                TurretsDestroyed, ShotsDeflected, leftTrigger, rightTrigger, totalTrigger, HeadBehavior.Instance.hitPoints, extra);
     }
 }

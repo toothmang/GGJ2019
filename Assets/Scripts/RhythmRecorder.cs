@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class RhythmRecorder : MonoBehaviour
 {
+    public static RhythmRecorder Instance;
     public Color hitColor;
     public Color replayColor;
     public float hitGlowTime = 0.25f;
@@ -17,7 +18,8 @@ public class RhythmRecorder : MonoBehaviour
     Vector3 ogScale;
     Color ogColor;
 
-    
+    public delegate void BeatHit();
+    public event BeatHit OnHit;
 
 	// Use this for initialization
 	void Start () {
@@ -29,6 +31,9 @@ public class RhythmRecorder : MonoBehaviour
         }
 
         ogScale = transform.localScale;
+        Instance = this;
+
+        OnHit += () => { StartCoroutine(Hit(replayColor)); };
     }
 	
 	// Update is called once per frame
@@ -92,21 +97,23 @@ public class RhythmRecorder : MonoBehaviour
 
     IEnumerator PlayHits()
     {
-        loop:
-        float startTime = Time.unscaledTime;
-        for (int i = 0; i < hits.Count; i++)
+        do
         {
-            if (i >= hits.Count) yield break;
-            while ((Time.unscaledTime - startTime) < hits[i])
+            float startTime = Time.unscaledTime;
+            for (int i = 0; i < hits.Count; i++)
             {
-                yield return new WaitForSecondsRealtime(Time.unscaledDeltaTime);
+                if (i >= hits.Count) yield break;
+                while ((Time.unscaledTime - startTime) < hits[i])
+                {
+                    yield return new WaitForSecondsRealtime(Time.unscaledDeltaTime);
+                }
+
+                OnHit();
             }
 
-            StartCoroutine(Hit(replayColor));
-        }
+            yield return new WaitForSecondsRealtime(2.0f);
 
-        yield return new WaitForSecondsRealtime(2.0f);
-        if (loopRhythm) goto loop;
+        } while (loopRhythm);
     }
 
     private void OnTriggerEnter(Collider other)
